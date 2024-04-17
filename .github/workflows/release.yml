@@ -13,7 +13,7 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v2
         with:
-          depth: 1
+          ref: ${{ github.ref }}
 
       - name: Compile PDF and compress
         run: |
