@@ -1,0 +1,27 @@
+name: Build docker image
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ghcr.io/huangfusl/template:v2.7.0
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+        with:
+          depth: 1
+
+      - name: Compile PDF and compress
+        run: |
+          make default
+          find ./lec[0-9] \( -name "*.pdf" -o -name "*.ipynb" \) -exec tar -cJvf lec_files.tar.xz {} +
+
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            lec_files.tar.xz
