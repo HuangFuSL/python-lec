@@ -19,6 +19,7 @@ jobs:
 
       - name: Compile PDF and compress
         run: |
+          ln -s /opt/template/makefile.latex.template makefile.latex.template
           make default
           find ./lec[0-9] \( -name "*.pdf" -o -name "*.ipynb" \) -exec tar -cJvf lec_files.tar.xz {} +
 
