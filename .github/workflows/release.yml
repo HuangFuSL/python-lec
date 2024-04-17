@@ -6,7 +6,9 @@ on:
 
 jobs:
   build:
-    runs-on: ghcr.io/huangfusl/template:v2.7.0
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/huangfusl/template:v2.7.0
     permissions:
       contents: write
     steps:
