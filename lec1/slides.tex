@@ -2,6 +2,7 @@
 \usepackage[scheme=plain]{ctex}
 \usepackage{listings}
 \usepackage{libertine}
+\usepackage[normalem]{ulem}
 \usefonttheme[onlymath]{serif}
 % Change tt font to Source Code Pro
 \usepackage{sourcecodepro}
@@ -21,14 +22,21 @@
     stringstyle=\color{darkred},
 }
 
-\title{Lecture 1: Introduction to Python}
+\title[Lecture 1: Introduction to Python]{\LARGE{清华经管博士生工作坊}\newline\newline \large{Lecture 1: Introduction to Python}}
 \author{皇甫硕龙}
-\date{2024-04-17}
+\date{2024-04-18}
 \splitsections
 
 \begin{document}
     \begin{frame}[fragile]
         \maketitle
+    \end{frame}
+    \begin{frame}
+        \frametitle{History of Python}
+
+        Python is a high-level, \textbf{interpreted}, and general-purpose programming language. It was created by Guido van Rossum and first released in 1991.
+
+        Currently, Python has two major versions: Python 2 and Python 3. Python 2 has reached its end of life on January 1, 2020. Python 3 is the future of Python and is under active development.
     \end{frame}
     \section{Installation}
     \begin{frame}[fragile]
@@ -41,13 +49,17 @@
             \includegraphics[width=0.8\linewidth]{imgs/1.png}
         \end{figure}
         }
+        \only<2->{\addtocounter{framenumber}{1}}
         \only<2>{
-        \addtocounter{framenumber}{1}
         \begin{figure}
             \includegraphics[width=0.8\linewidth]{imgs/2.png}
         \end{figure}
         }
-
+        \only<3>{
+        \begin{figure}
+            \includegraphics[width=0.6\linewidth]{imgs/3.jpg}
+        \end{figure}
+        }
     \end{frame}
     \begin{frame}[fragile]
         \frametitle{Install Python (macOS \& Linux)}
@@ -68,14 +80,14 @@ sudo apt-get install python3 python3-pip
     \begin{frame}[fragile]
         \frametitle{Verify Installation \& Install Packages}
 
-        Notice that Python 2 and Python 3 are different in syntax. Use {\footnotesize\verb|python3|} in terminal to ensure Python 3.
+        Notice that Python 2 and Python 3 are slightly different in syntax. Use {\footnotesize\verb|python3|} in terminal to ensure Python 3.
 
         \begin{lstlisting}[language=bash]
 python3 --version # Check Python version
 # Python 3.11.7
         \end{lstlisting}
 
-        Use {\footnotesize\verb|pip3|} to install packages. {\color{darkred}Switch to Tsinghua pypi mirror to speed up installation}.
+        Use {\footnotesize\verb|pip3|} to install packages. {\color{darkred} Switch to \href{https://mirrors.tuna.tsinghua.edu.cn/help/pypi/}{Tsinghua pypi mirror} to speed up installation}.
 
         \begin{lstlisting}[language=bash]
 # Set Tsinghua pypi mirror
@@ -84,6 +96,13 @@ pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 pip3 install <package-name>
         \end{lstlisting}
 
+    \end{frame}
+    \begin{frame}
+        \frametitle{Anaconda}
+
+        Anaconda is a popular distribution of Python and R programming languages. It includes many packages for data science, machine learning, and scientific computing. And supports swiftly switching between different Python versions and environments.
+
+        Refer to \href{https://zhuanlan.zhihu.com/p/25198543}{\color{darkblue} this ZhiHu article} for installation instructions and its usage.
     \end{frame}
     \begin{frame}[fragile]
         \frametitle{Python Interpreter}
@@ -122,6 +141,13 @@ python3 -m pip install numpy # Same as pip3 install numpy
 
         To use Jupyter Notebook, first install {\footnotesize\verb|jupyter|} package. Then execute the {\footnotesize\verb|jupyter notebook|} command in terminal. A browser window will spawn.
     \end{frame}
+    \begin{frame}
+        \frametitle{IDE for Python}
+
+        We'll use \textbf{Visual Studio Code} as the IDE for Python programming. It is lightweight and supports various programming languages. Download from \href{https://code.visualstudio.com/download}{\color{darkblue} official website}.
+
+        Search and install the \textbf{Python} extension in the \textbf{Extensions} tab. The extension provides syntax highlighting, code completion, and debugging support.
+    \end{frame}
     \begin{frame}[fragile]
         \frametitle{External Resources}
 
@@ -130,7 +156,9 @@ python3 -m pip install numpy # Same as pip3 install numpy
         \begin{itemize}
             \item \href{https://docs.python.org/3/}{\color{darkblue} Official Python documentation}
             \item \href{https://www.stackoverflow.com/}{\color{darkblue} Stack Overflow}
-            \item \href{https://chat.openai.com/}{\color{darkblue} ChatGPT}
+            \item \href{https://chat.openai.com/}{\color{darkblue} ChatGPT} (although may not be accurate)
+            \item \href{https://github.com/features/copilot}{\color{darkblue} GitHub Copilot} from \href{https://education.github.com/discount_requests/application}{\color{darkblue} GitHub Student Developer Pack}
+            \item \href{https://www.csdn.net/}{\color{darkred}\sout{CSDN}}
         \end{itemize}
 
         Refer to the package documentation for package-specific problems.
@@ -222,12 +250,12 @@ TypeError: 'str' object is not callable
         A statement is a single line of code that performs some action. Python does not require semicolons {\footnotesize\verb|;|} to end a statement.
 
         \begin{enumerate}
-            \item \textbf{Assignment statement}: Assigns a value to a variable.
+            \item \textbf{Expression statement}: Evaluates an expression.
+            \item \textbf{Assignment statement}: Assigns the value of an expression to a variable. Here {\footnotesize\verb|=|} should be read as ``is assigned'' ($\leftarrow$).
 \begin{lstlisting}[language=python]
 x = 10
 y = 4 * x + 3
 \end{lstlisting}
-            \item \textbf{Expression statement}: Evaluates an expression.
 \begin{lstlisting}[language=python]
 print('Hello World!')
 x * 3 + y * 2
@@ -288,12 +316,13 @@ x = 1 + 2 + 3 + 4 + 5 + \
     \begin{frame}[fragile]
         \frametitle{Integers}
 
-        \textbf{Integers} are whole numbers without a decimal point. They can be positive or negative. In Python, integers have unlimited range.
+        \textbf{Integers} are whole numbers without a decimal point. They can be positive or negative. In Python, integers have unlimited range. Underscores {\footnotesize\verb|_|} can be used to separate digits for readability.
 
 \begin{lstlisting}[language=python]
 dec = 123
 neg = -456
 big = 123456789012345678901234567890
+underscore = 1_000_000 # Underscores for readability
 hex_ = 0x10 # Hexadecimal number starts with 0x
 oct_ = 0o10 # Octal number starts with 0o
 bin_ = 0b10 # Binary number starts with 0b
@@ -447,7 +476,7 @@ x /= 3 # Equivalent to x = x / 3
             \item {\footnotesize\verb|int()|}: Convert to integer. For floating-point numbers, it truncates the decimal part.
             \item {\footnotesize\verb|float()|}: Convert to float. Scientific notation is supported.
             \item {\footnotesize\verb|str()|}: Convert to string.
-            \item {\footnotesize\verb|bool()|}: Convert to boolean. \textbf{0}, \textbf{None}, empty strings and empty containers are \textbf{False}. Other values are \textbf{True}.
+            \item {\footnotesize\verb|bool()|}: Convert to boolean. \textbf{0}, \textbf{None} and empty containers are \textbf{False}. Other values are \textbf{True}.
         \end{itemize}
 \begin{lstlisting}[language=python]
 int(3.14) # 3
@@ -506,21 +535,6 @@ nested = [1, 'Alice', [2, 3]]
 empty = []
 add = nums + names # Concatenation
 mul = names * 2 # Repetition
-\end{lstlisting}
-    \end{frame}
-    \begin{frame}[fragile]
-        \frametitle{Methods on Sequences}
-
-        Sequences support actions not changing the sequence in place, including {\footnotesize\verb|len()|}, {\footnotesize\verb|min()|}, {\footnotesize\verb|max()|}, {\footnotesize\verb|sum()|}. Sequences also have methods like {\footnotesize\verb|index()|}, {\footnotesize\verb|count()|}.
-
-\begin{lstlisting}[language=python]
-nums = [1, 2, 3, 4, 5]
-len(nums) # Length of the list: 5
-min(nums) # Minimum value: 1
-max(nums) # Maximum value: 5
-sum(nums) # Sum of the list: 15
-nums.index(3) # Find the index of 3: 2
-nums.count(3) # Count the number of 3: 1
 \end{lstlisting}
     \end{frame}
     \begin{frame}[fragile]
@@ -591,6 +605,21 @@ nums[:2] # Omit start index defaults to 0, [1, 2]
 nums[3:] # Omit end index defaults to the end, [4, 5]
 nums[:4:2] # [2, 3, 4] # Specify step size, [1, 3]
 nums[::-1] # Negative step size reverses the result, [5, 4, 3, 2, 1]
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Methods on Sequences}
+
+        Sequences support actions not changing the sequence in place, including {\footnotesize\verb|len()|}, {\footnotesize\verb|min()|}, {\footnotesize\verb|max()|}, {\footnotesize\verb|sum()|}. Sequences also have methods like {\footnotesize\verb|index()|}, {\footnotesize\verb|count()|}.
+
+\begin{lstlisting}[language=python]
+nums = [1, 2, 3, 4, 5]
+len(nums) # Length of the list: 5
+min(nums) # Minimum value: 1
+max(nums) # Maximum value: 5
+sum(nums) # Sum of the list: 15
+nums.index(3) # Find the index of 3: 2
+nums.count(3) # Count the number of 3: 1
 \end{lstlisting}
     \end{frame}
     \begin{frame}[fragile]
@@ -665,6 +694,22 @@ nested = {'Alice': {'Math': 90, 'English': 85}}
         {\footnotesize\itshape\textbf{Remark:} After Python 3.8, dictionaries are guaranteed to be ordered as the insertion order. Previously, dictionaries are unordered.}
     \end{frame}
     \begin{frame}[fragile]
+        \frametitle{Mapping: Indexing and Assigning Elements}
+
+        We can query items from a dictionary using its corresponding key, like indexing elements in a list. If the key does not exist in the dictionary, a {\footnotesize\verb|KeyError|} will be raised.
+
+        We can assign a value to a key to add a new key-value pair or modify an existing value.
+
+\begin{lstlisting}[language=python]
+scores = {'Alice': 90, 'Bob': 85, 'Charlie': 88}
+scores['Alice'] # Get the value of 'Alice': 90
+scores['David'] # KeyError, 'David' not in the dictionary
+scores['Bob'] = 86 # Modify the value of 'Bob'
+scores['David'] = 80 # Add a new key-value pair
+\end{lstlisting}
+
+    \end{frame}
+    \begin{frame}[fragile]
         \frametitle{Mapping: Methods on Dictionaries}
 
         Methods on dictionaries include {\footnotesize\verb|get()|}, {\footnotesize\verb|pop()|}, {\footnotesize\verb|popitem()|}, {\footnotesize\verb|clear()|}, {\footnotesize\verb|update()|}.
@@ -685,7 +730,7 @@ scores.update({'Alice': 90, 'Bob': 85}) # Update the content of dictionary
     \begin{frame}[fragile]
         \frametitle{Sets}
 
-        \textbf{Sets} are surrounded by curly braces {\footnotesize\verb|{}|}. They store \textbf{unique} items. Sets are \textbf{unordered} and \textbf{mutable}. Elements in the set must be \textbf{immutable}.
+        \textbf{Sets} are surrounded by curly braces {\footnotesize\verb|{}|}. They store \textbf{unique} items. Sets are \textbf{unordered} and \textbf{mutable}. If we need immutable sets, we can use \textbf{frozensets}. Elements in the set must be \textbf{immutable}.
 
 \begin{lstlisting}[language=python]
 nums = {1, 2, 3, 4, 5}
@@ -693,7 +738,7 @@ empty = set() # Empty set, {} denotes an empty dictionary
 nested = {1, 'Alice', {2, 3}} # Invalid since set {2, 3} is mutable
 \end{lstlisting}
 
-        If we need immutable sets, we can use \textbf{frozensets}.
+        Unlike sequences or mappings, we cannot access elements in a set by index or key. We can only check if an element is in the set.
     \end{frame}
 
     \begin{frame}[fragile]
@@ -907,6 +952,9 @@ add(3, 4) # Positional arguments
 add(x=3, y=4) # Keyword arguments
 add(3, y=4) # Keyword arguments must follow positional arguments
 add(y=4, x=3) # The order of keyword arguments does not matter
+add(*[3, 4]) # Unpack a list as positional arguments
+add(**{'x': 3, 'y': 4}) # Unpack a dictionary as keyword arguments
+add(*[3], **{'y': 4}) # Mixed unpack
 \end{lstlisting}
     \end{frame}
     \begin{frame}[fragile]
