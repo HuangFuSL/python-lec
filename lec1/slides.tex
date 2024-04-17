@@ -22,6 +22,33 @@
     stringstyle=\color{darkred},
 }
 
+\setbeamertemplate{footline}{
+    \begin{beamercolorbox}[colsep=1.5pt]{upper separation line foot}
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}
+        {
+            \usebeamerfont{author in head/foot}\insertshortauthor
+        }
+        \hfill
+        {
+            \url{https://github.com/HuangFuSL/python-lec}
+        }
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}
+        {
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        }
+        \hfill
+        {
+            \usebeamerfont{frame number}
+            \usebeamercolor[fg]{frame number}
+            \insertframenumber~/~\inserttotalframenumber
+        }
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[colsep=1.5pt]{lower separation line foot}
+    \end{beamercolorbox}
+}
+
 \title[Lecture 1: Introduction to Python]{\LARGE{清华经管博士生工作坊}\newline\newline \large{Lecture 1: Introduction to Python}}
 \author{皇甫硕龙}
 \date{2024-04-18}
