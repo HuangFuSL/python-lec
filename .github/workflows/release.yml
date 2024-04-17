@@ -21,10 +21,10 @@ jobs:
         run: |
           ln -s /opt/template/makefile.latex.template makefile.latex.template
           make default
-          find ./lec[0-9] \( -name "*.pdf" -o -name "*.ipynb" \) -exec tar -cJvf lec_files.tar.xz {} +
+          find ./lec[0-9] \( -name "*.pdf" -o -name "*.ipynb" \) -exec tar -czvf lec_files.tar.gz {} +
 
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            lec_files.tar.xz
+            lec_files.tar.gz
