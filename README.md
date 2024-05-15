@@ -8,3 +8,4 @@ Checkout the "[Release](https://github.com/HuangFuSL/python-lec/releases)" tab f
 
 * Lecture 1: Introduction to Python
 * Lecture 2: Advanced Python Programming
+* Lecture 3: Statistics in Python

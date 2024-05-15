@@ -1,0 +1,809 @@
+\documentclass[beamer, en, version=2.0]{huangfusl-template}
+\usepackage[scheme=plain]{ctex}
+\usepackage{listings}
+\usepackage{libertine}
+\usefonttheme[onlymath]{serif}
+% Change tt font to Source Code Pro
+\usepackage{sourcecodepro}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{darkblue!10},
+    % Set color paddings
+    frame=single,
+    framerule=0pt,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    % Set comment to gray and italic
+    commentstyle=\color{gray}\itshape,
+    % Set keyword to bold and darkblue
+    keywordstyle=\color{darkblue}\bfseries,
+    % Set string to darkred
+    stringstyle=\color{darkred},
+}
+
+\title[Lecture 3: Statistics in Python]{\LARGE{清华经管博士生工作坊}\newline\newline \large{Lecture 3: Statistics in Python}}
+\author{皇甫硕龙}
+\date{2024-04-25}
+\splitsections
+
+\begin{document}
+    \begin{frame}
+        \maketitle
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Python Scientific Computing Ecosystem}
+
+        \begin{itemize}
+            \item \textbf{NumPy:} Provides vectorized mathematical operations on arrays and matrices.
+            \item \textbf{SciPy:} Provides a large library of scientific mathematical functions.
+            \item \textbf{Pandas:} Provides data manipulation tools for data analysis.
+            \item \textbf{Matplotlib:} Provides plotting tools for data visualization.
+            \item \textbf{Scikit-learn:} Provides machine learning algorithms and tools.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents[hideallsubsections]
+    \end{frame}
+
+    \section{Introduction to NumPy}
+
+    \begin{frame}[fragile]
+        \frametitle{What is NumPy?}
+
+        NumPy is a packages that supports \textbf{multidimensional arrays} and \textbf{matrices} in Python. It provides a large library of high-level mathematical functions to operate on these arrays.
+
+        We can use {\color{darkred}\footnotesize\verb|pip install numpy|} to install NumPy. NumPy is shipped with Anaconda by default.
+
+        Conventionally, we use {\color{blue}\footnotesize\verb|import numpy as np|} to import NumPy.
+    \end{frame}
+
+    \subsection{Arrays}
+    \begin{frame}[fragile]
+        \frametitle{n-dimensional Arrays}
+
+        {\color{blue}\footnotesize\verb|numpy.ndarray|} is the core data structure of NumPy. n-dimensional arrays can cover frequently used scalars, vectors, matrices and high-dimension tensors.
+
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{ccccc}
+                \toprule
+                \textbf{Dimension} & 0 & 1 & 2 & 3 \\
+                \midrule
+                \textbf{Type} & Scalar & Vector & Matrix & Tensor \\
+                \textbf{Example} & 1 & [1, 2, 3] & $\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$ & $\begin{bmatrix} \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} & \begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix} \end{bmatrix}$ \\
+                \bottomrule
+            \end{tabular}
+        \end{table}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Dimensions and Shapes}
+
+        The concept of \textbf{dimension} follows the mathematical definition. We can use {\color{blue}\footnotesize\verb|ndim|} property to get the number of dimensions. N-dimensional arrays have n axes.
+
+        \textbf{Shape} is a tuple of integers that specify the number of elements in each dimension. We can use {\color{blue}\footnotesize\verb|shape|} property to get the shape of an array.
+
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Creating Arrays}
+
+        We can convert a (nested) list of numbers to a NumPy array using {\color{blue}\footnotesize\verb|numpy.array|} function.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+scalar = np.array(1)
+vector = np.array([1, 2, 3])
+matrix = np.array([[1, 2], [3, 4]])
+tensor = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+
+# Dimension and shape
+print(tensor.ndim) # 3
+print(tensor.shape) # (2, 2, 2)
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Create Arrays: Special Functions (1)}
+
+        NumPy provides several special functions to create arrays. For the following functions, we can specify the shape of the array by passing a tuple of integers.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+zeros = np.zeros((2, 3)) # A 2x3 matrix of zeros
+ones = np.ones((2, 3)) # A 2x3 matrix of ones
+twos = np.full((2, 3), 2) # A 2x3 matrix of twos
+rand = np.random.rand(2, 3) # uniform distribution
+randn = np.random.randn(2, 3) # normal distribution
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Create Arrays: Special Functions (2)}
+
+        Functions {\color{blue}\footnotesize\verb|ones, zeros|} mentioned in the previous slides have a {\footnotesize\verb|_likes|} version, which can create arrays with the same shape as the input array.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+matrix = np.array([[1, 2], [3, 4]])
+zeros_like = np.zeros_like(matrix) # Same shape as `matrix`
+ones_like = np.ones_like(matrix)
+twos_like = np.full_like(matrix, 2)
+\end{lstlisting}
+    \end{frame}
+    \subsection{Mathematical Operations}
+    \begin{frame}[fragile]
+        \frametitle{Mathematical Operations}
+
+        NumPy n-dimensional arrays support element-wise operations. We can use Python built-in operators {\color{blue}\footnotesize\verb|+|}, {\color{blue}\footnotesize\verb|-|}, {\color{blue}\footnotesize\verb|*|}, {\color{blue}\footnotesize\verb|/|}, {\color{blue}\footnotesize\verb|**|} to perform \textbf{element-wise} operations.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+a = np.array([
+    [1, 2, 3],
+    [4, 5, 6]
+])
+b = np.array([
+    [7, 8, 9],
+    [10, 11, 12]
+])
+print(a + b)
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Matrix Operations}
+
+        To perform matrix multiplication, we can use {\color{blue}\footnotesize\verb|numpy.dot|} (between vectors), {\color{blue}\footnotesize\verb|numpy.matmul|} (between matrices) function or  {\color{blue}\footnotesize\verb|@|} operator to perform matrix multiplication.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+a = np.array([
+    [1, 2],
+    [3, 4]
+])
+b = np.array([
+    [5, 6],
+    [7, 8]
+])
+print(a @ b)
+# [[19 22]
+#  [43 50]]
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Matrix Operations}
+
+        For 2-D arrays, NumPy provides a module {\color{blue}\footnotesize\verb|numpy.linalg|} to perform linear algebra operations. Some common functions include:
+
+        \begin{itemize}
+            \item {\color{blue}\footnotesize\verb|inv(x)|:} Inverse of a matrix $x$;
+            \item {\color{blue}\footnotesize\verb|det(x)|:} Determinant of a matrix $x$;
+            \item {\color{blue}\footnotesize\verb|eig(x)|:} Eigenvalues and eigenvectors of a matrix $x$;
+            \item {\color{blue}\footnotesize\verb|svd(x)|:} Singular value decomposition of a matrix $x$;
+            \item {\color{blue}\footnotesize\verb|solve(A, b)|:} Solve a linear function $\bsA\bsx = \bsb$
+        \end{itemize}
+    \end{frame}
+    \subsection{Example: Linear Regression}
+    \begin{frame}
+        \frametitle{Example}
+
+        OLS solution for linear regression $\bsy = \bsX\boldsymbol{\beta} + \boldsymbol\varepsilon$ is given by
+
+        \begin{equation}
+            \hat{\boldsymbol\beta} = (\bsX^\top \bsX)^{-1}\bsX^\top \bsy
+        \end{equation}
+
+        Given a dataset $X$ and $Y$, we can use NumPy to calculate $\hat\beta$.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Linear Regression}
+
+        First, we generate some random data according to the following equation.
+
+        \begin{equation}
+            y = 1 + 2x_1 + 3x_2 + \varepsilon, \quad \varepsilon \sim \mathcal{N}(0, 1)
+        \end{equation}
+
+\begin{lstlisting}[language=python]
+import numpy as np
+np.random.seed(0)
+
+X = np.random.rand(200, 2)
+X = np.concatenate([np.ones((200, 1)), X], axis=1)
+beta_real = np.array([1, 2, 3])
+Y = X @ beta_real + np.random.randn(200)
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Linear Regression}
+
+        Then, we calculate $\hat\beta$ using the formula.
+
+\begin{lstlisting}[language=python]
+beta_hat = np.linalg.inv(X.T @ X) @ X.T @ Y
+print(beta_hat)
+# [0.84398022 1.97617252 3.13064746]
+\end{lstlisting}
+
+        Also, we can calculate the mean squared error (MSE) and $R^2$.
+
+\begin{lstlisting}[language=python]
+Y_hat = X @ beta_hat
+mse = np.mean((Y - Y_hat) ** 2)
+r2 = 1 - mse / np.var(Y)
+print(mse, r2)
+# 0.9656717556650416 0.5398522125124627
+\end{lstlisting}
+
+    \end{frame}
+    \subsection{Other Operations}
+    \begin{frame}[fragile]
+        \frametitle{Concatenation}
+
+        In the example above, we have used {\color{blue}\footnotesize\verb|numpy.concatenate|} to concatenate two arrays.
+
+\begin{lstlisting}[language=python]
+X = np.random.rand(200, 2)
+X = np.concatenate([np.ones((200, 1)), X], axis=1)
+\end{lstlisting}
+
+        Before the operation, $X$ is a $200 \times 2$ matrix. By executing {\color{blue}\footnotesize\verb|np.concatenate|}, a $200\times 1$ matrix is added to the left of $X$ on the second dimension.
+
+        {\color{blue}\footnotesize\verb|numpy.stack|} is another function to concatenate arrays. It can concatenate arrays along a \textbf{new} axis, creating a $n+1$-dimensional array. E.g. merging $m$ $n$-dimensional vectors into a $m\times n$ matrix.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Indexing and Slicing}
+
+        Slicing is the reverse operation of concatenation. We can use Python slicing syntax to extract a subarray from an array on any axis.
+
+        \begin{table}
+            \centering
+            \begin{tabular}{cccccc}
+                \toprule
+                Matrix & \begin{bmatrix}
+                    \begin{bmatrix}
+                        1 & 2 & 3
+                    \end{bmatrix} \\
+                    \begin{bmatrix}
+                        4 & 5 & 6
+                    \end{bmatrix} \\
+                    \begin{bmatrix}
+                        7 & 8 & 9
+                    \end{bmatrix}
+                \end{bmatrix} & \begin{bmatrix}
+                    \begin{bmatrix}
+                        1 & 2
+                    \end{bmatrix} \\
+                    \begin{bmatrix}
+                        4 & 5
+                    \end{bmatrix}
+                \end{bmatrix} & \begin{bmatrix}
+                    1 & 2 & 3
+                \end{bmatrix} & \begin{bmatrix}
+                    2 & 5 & 8
+                \end{bmatrix} & $5$ \\
+                \midrule
+                Code & original & {\footnotesize\verb|[:2, :2]|} & {\footnotesize\verb|[0]|} & {\footnotesize\verb|[:, 1]|} & {\footnotesize\verb|[1, 1]|} \\
+                \bottomrule
+            \end{tabular}
+        \end{table}
+
+        Here $5$ is a \textbf{scalar}. We can use {\color{blue}\footnotesize\verb|scalar.item()|} to extract its value.
+
+        {\footnotesize\itshape\textbf{Remark:} The resulting array is a \textbf{view} of the original array. Editing the slice will \textbf{change} the original array.}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Aggregation}
+
+        Aggregation functions can be used to calculate statistics of an array. All the functions can be applied along a specific axis by providing the {\color{blue}\footnotesize\verb|axis|} parameter. If the parameter is not provided, the function will be applied to the whole array.
+
+        \begin{itemize}
+            \item {\color{blue}\footnotesize\verb|sum|:} Sum of elements;
+            \item {\color{blue}\footnotesize\verb|mean|:} Mean of elements;
+            \item {\color{blue}\footnotesize\verb|var|:} Variance of elements;
+            \item {\color{blue}\footnotesize\verb|min|} and {\color{blue}\footnotesize\verb|max|:} Minimum and maximum of elements;
+        \end{itemize}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Numpy Feature: Broadcasting}
+
+        \textbf{Broadcasting} allows NumPy to perform element-wise operations on arrays with different shapes. For example, we can add a scalar to a matrix.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+a = np.array([
+    [1, 2],
+    [3, 4]
+])
+a + 1 # [[2, 3], [4, 5]]
+a + np.array([1, 2]) # [[2, 4], [4, 6]]
+\end{lstlisting}
+
+        NumPy will automatically broadcast the smaller array to the larger array.
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Comparison Operators and Masking}
+
+        Applying comparison operators on NumPy arrays will return a boolean array. We can use boolean arrays to filter elements in an array (similar to slicing). For example, if we want to modify all the negative elements in an array to 0, we can use the following code.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+a = np.array([-1, 0, 1, -2, 3])
+mask = a < 0 # [True, False, False, True, False]
+a[mask] = 0 # Modification happens in-place
+print(a) # [0, 0, 1, 0, 3]
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Bit Operators}
+
+        Bit operators {\color{blue}\footnotesize\verb|&|} (and), {\color{blue}\footnotesize\verb|~|} (not), {\color{blue}\footnotesize\verb|^|} (or) can be used to combine boolean arrays. These operators are \textbf{element-wise}.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+a = np.array([True, False, True])
+b = np.array([False, True, True])
+print(a & b) # [False, False, True]
+print(~a) # [False, True, False]
+print(a ^ b) # [True, True, False]
+\end{lstlisting}
+
+        NumPy arrays \textbf{do not} support Python's {\color{blue}\footnotesize\verb|and|}, {\color{blue}\footnotesize\verb|or|}, {\color{blue}\footnotesize\verb|not|} operators.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Reshaping}
+
+        We can use {\color{blue}\footnotesize\verb|numpy.reshape|} to change the shape of an array without changing the data (i.e. the new shape have the same number of elements as the original shape). Suppose we starts from {\footnotesize\verb|np.arange(12)|}
+
+        \begin{table}
+            \centering
+            \begin{tabular}{ccccc}
+                \toprule
+                Matrix & \begin{bmatrix}
+                    0 & \cdots & 11
+                \end{bmatrix} & \begin{bmatrix}
+                    0 & \cdots & 5 \\
+                    6 & \cdots & 10
+                \end{bmatrix} & \begin{bmatrix}
+                    0 & 1 & 2 & 3 \\
+                    4 & 5 & 6 & 7 \\
+                    8 & 9 & 10 & 11
+                \end{bmatrix} & \begin{bmatrix}
+                    0 & 1 & 2 \\
+                    3 & 4 & 5 \\
+                    6 & 7 & 8 \\
+                    9 & 10 & 11
+                \end{bmatrix} \\
+                \midrule
+                Shape & $(1, 12)$ & $(2, 6)$ & $(3, 4)$ & $(4, 3)$ \\
+                \bottomrule
+            \end{tabular}
+        \end{table}
+
+        We can replace the last axis as -1 to automatically determine the shape.
+    \end{frame}
+    \subsection{Example: Checkerboard Pattern}
+    \begin{frame}
+        \frametitle{Example}
+
+        Produce a $8\times 8$ binary matrix with checkerboard pattern. The matrix should look like the following.
+
+        \begin{equation*}
+            \begin{bmatrix}
+                0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 & 1 & 0 & 1 & 0
+            \end{bmatrix}
+        \end{equation*}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 1: Use {\normalsize\ttfamily np.stack}}
+
+        We can first construct a 8-dimensional vector with alternating 0s and 1s, then use {\color{blue}\footnotesize\verb|np.stack|} to concatenate the vectors.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+zero, one = np.array(0), np.array(1)
+row_zero = np.stack([zero, one] * 4)
+row_one = np.stack([one, zero] * 4)
+matrix = np.stack([row_zero, row_one] * 4)
+print(matrix)
+\end{lstlisting}
+
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 2: Use {\normalsize\ttfamily np.concatenate}}
+
+        Notice the first $2\times 2$ matrix is a reversed identity matrix. We can first flip the identity matrix, then use {\color{blue}\footnotesize\verb|np.concatenate|} to concatenate the matrices.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+
+unit = 1 - np.eye(2) # [[0, 1], [1, 0]]
+row = np.concatenate([unit] * 4, axis=0)
+matrix = np.concatenate([row] * 4, axis=1)
+print(matrix)
+\end{lstlisting}
+        \begin{equation*}
+            \begin{bmatrix}
+                1 & 0 \\
+                0 & 1
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 \\
+                1 & 0
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0
+            \end{bmatrix}
+        \end{equation*}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 3: Use slicing}
+
+        We can flip certain rows and columns of the zero matrix to get the desired matrix.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+zeros = np.zeros((8, 8))
+zeros[::2] = 1 - zeros[::2]
+zeros[:, ::2] = 1 - zeros[:, ::2]
+print(zeros)
+\end{lstlisting}
+        \begin{equation*}
+            \begin{bmatrix}
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 0 & 0 & 0 \\
+                1 & 1 & 1 & 1 \\
+                0 & 0 & 0 & 0 \\
+                1 & 1 & 1 & 1 \\
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 \\
+            \end{bmatrix}
+        \end{equation*}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 4: Use mathematical operations}
+
+        Notice that for any $0$ in the matrix, the row index (start from 0) and column index are both odd or both even.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+range_matrix = np.arange(64).reshape(8, 8)
+result = (range_matrix // 8 + range_matrix % 8) % 2
+print(result)
+\end{lstlisting}
+        \begin{equation*}
+            \begin{bmatrix}
+                0 & \cdots & 15
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 2 & 3 \\
+                4 & 5 & 6 & 7 \\
+                8 & 9 & 10 & 11 \\
+                12 & 13 & 14 & 15
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 2 & 3 \\
+                1 & 2 & 3 & 4 \\
+                2 & 3 & 4 & 5 \\
+                3 & 4 & 5 & 6
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0
+            \end{bmatrix}
+        \end{equation*}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 5: Use Logical Operations}
+
+        Suppose we have a matrix with even rows are all 1s and odd rows are all 0s.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+zeros = np.zeros((8, 8))
+zeros[::2] = 1
+result = (zeros != zeros.T).astype(int)
+print(result)
+\end{lstlisting}
+
+        \begin{equation*}
+            \begin{bmatrix}
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+                0 & 0 & 0 & 0 \\
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                1 & 1 & 1 & 1 \\
+                0 & 0 & 0 & 0 \\
+                1 & 1 & 1 & 1 \\
+                0 & 0 & 0 & 0 \\
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                1 & 0 & 1 & 0 \\
+                1 & 0 & 1 & 0 \\
+                1 & 0 & 1 & 0 \\
+                1 & 0 & 1 & 0 \\
+            \end{bmatrix} \Longrightarrow \begin{bmatrix}
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0 \\
+                0 & 1 & 0 & 1 \\
+                1 & 0 & 1 & 0
+            \end{bmatrix}
+        \end{equation*}
+    \end{frame}
+    \subsection{Summary}
+    \begin{frame}[fragile]
+        \frametitle{Summary}
+
+        \begin{itemize}
+            \item \textbf{Creating arrays:} {\color{blue}\footnotesize\verb|array|}, {\color{blue}\footnotesize\verb|zeros|}, {\color{blue}\footnotesize\verb|ones|}, {\color{blue}\footnotesize\verb|rand|}, {\color{blue}\footnotesize\verb|randn|}.
+            \item \textbf{Mathematical operations:} {\color{blue}\footnotesize\verb|matmul|}, {\color{blue}\footnotesize\verb|dot|}
+            \item \textbf{Linear algebra:} {\color{blue}\footnotesize\verb|inv|}, {\color{blue}\footnotesize\verb|det|}, {\color{blue}\footnotesize\verb|eig|}, {\color{blue}\footnotesize\verb|svd|}, {\color{blue}\footnotesize\verb|solve|}
+            \item \textbf{Concatenation:} {\color{blue}\footnotesize\verb|concatenate|}, {\color{blue}\footnotesize\verb|stack|}
+            \item \textbf{Aggregation:} {\color{blue}\footnotesize\verb|sum|}, {\color{blue}\footnotesize\verb|mean|}, {\color{blue}\footnotesize\verb|var|}, {\color{blue}\footnotesize\verb|min|}, {\color{blue}\footnotesize\verb|max|}
+            \item \textbf{Reshape} {\color{blue}\footnotesize\verb|reshape|}
+        \end{itemize}
+    \end{frame}
+    \section{Introduction to SciPy}
+
+    \begin{frame}[fragile]
+        \frametitle{Introduction to SciPy}
+
+        SciPy provides a large library of scientific mathematical functions including statistical tests, optimization, linear algebra, integration, interpolation, etc.
+
+        Use {\color{darkred}\footnotesize\verb|pip install scipy|} to install SciPy.
+
+        Suppose we want to perform significance test on our linear regression model. We need to use SciPy to calculate the $t$-statistic and $p$-value.
+    \end{frame}
+    \subsection{Statistic}
+    \begin{frame}[fragile]
+        \frametitle{{\normalsize\ttfamily scipy.stats} Module Overview}
+
+        {\footnotesize\verb|scipy.stats|} module provides a large library of statistical functions.
+
+        \begin{enumerate}
+            \item \textbf{Random Variables:} Random variables and their probability distributions.
+            \item \textbf{Descriptive Statistics:} Functions to calculate mean, median, variance, skewness, kurtosis, etc.
+            \item \textbf{Hypothesis Testing:} Significance tests, association tests, independence tests, etc.
+        \end{enumerate}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Random Variables}
+
+        We take normal distribution as our example. {\footnotesize\verb|scipy.stats.norm|} allows us to create a normal distribution. With this distribution, we can sample from the distribution, obtain the value of PDF, CDF, survival function and their inverse.
+
+\begin{lstlisting}[language=python]
+import scipy.stats as stats
+
+std_norm = stats.norm(loc=0, scale=1) # loc: mean, scale: std
+rvs = std_norm.rvs(size=1000) # Random sample
+pdf = std_norm.pdf(0) # PDF at 0: 0.3989422804014327
+cdf = std_norm.cdf(0) # CDF at 0: 0.5
+quantile = std_norm.ppf(0.95) # Quantile at 0.5: 1.6448536269514722
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Example: Significance Test on Linear Regression}
+
+        Following our previous example, now we want to perform a significance test on the linear regression model, i.e. test the hypothesis $H_0: \beta_j = 0$.
+
+        For $\beta_j$, we construct out $t$-statistic as
+
+        \begin{gather}
+            t_j = \frac{\hat\beta_j}{\text{SE}(\hat\beta_j)} \\
+            \text{SE}(\hat\beta_j) = \sqrt{\sigma^2 (\bsX^\top \bsX)^{-1}_{jj}}
+        \end{gather}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Significance Test on Linear Regression}
+
+        First, we calculate the standard error of $\hat\beta_j$ and $t$-statistic.
+
+\begin{lstlisting}[language=python]
+beta_se = np.sqrt(mse * np.linalg.inv(X.T @ X).diagonal())
+# [0.18528108, 0.24628093, 0.23554788]
+t_hat = beta_hat / beta_se
+# [ 4.5551345 ,  8.02405816, 13.29091769]
+\end{lstlisting}
+
+        Here, $\hat t$ follows a $t$-distribution with $n-p$ where $n$ is the number of observations (200) and $p$ is the number of predictors (3).
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Significance Test on Linear Regression}
+
+        Then, we calculate the $p$-value of the $t$-statistic.
+
+\begin{lstlisting}
+import scipy.stats as stats
+t_dist = stats.t(df=X.shape[0] - X.shape[1])
+p_value = 2 * (1 - t_dist.cdf(np.abs(t_hat)))
+print(p_value)
+# [9.16466729e-06 9.01501096e-14 0.00000000e+00]
+\end{lstlisting}
+
+        Since the $p$-value is way less than 0.05, we can reject the null hypothesis that $\beta_j = 0$ for all the three predictors.
+    \end{frame}
+    \subsection{Optimization}
+    \begin{frame}[fragile]
+        \frametitle{{\normalsize\ttfamily scipy.optimize} Module Overview}
+
+        {\footnotesize\verb|scipy.optimize|} module provides a large library of optimization functions.
+
+        \begin{itemize}
+            \item \textbf{Minimizing:} Minimize a scalar function of one or more variables.
+            \item \textbf{Least Squares:} Solve a least-squares problem with bounds on the variables (linear or non-linear).
+            \item \textbf{Root:} Find the roots of a scalar function.
+            \item \textbf{Linear Programming:} Solve linear programming problems.
+        \end{itemize}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Use {\normalsize\ttfamily scipy.optimize} to Solve Linear Regression}
+
+        We still use the data generated in the previous linear regression example. Now we want to use {\footnotesize\verb|scipy.optimize|} to solve the linear regression problem and estimate $\hat\beta$.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 1: Use {\normalsize\ttfamily minimize}}
+
+        We can define a function to calculate the MSE given $\hat\beta$ and use {\color{blue}\footnotesize\verb|minimize|} function to find the minimum of the function.
+
+\begin{lstlisting}[language=python]
+import scipy.optimize as optimize
+
+# Define function to calculate MSE
+def mse(beta):
+    Y_hat = X @ beta
+    return np.mean((Y - Y_hat) ** 2)
+
+result = optimize.minimize(mse, np.zeros(3))
+print(result.x)
+# [0.84395344 1.97618268 3.13068457]
+# OLS result [0.84398022 1.97617252 3.13064746]
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Solution 2: Use {\normalsize\ttfamily lsq\_linear}}
+
+        {\color{blue}\footnotesize\verb|lsq_linear|} function can solve the linear least squares problem with bounds on the variables. Here our $\hat\beta$ is not constrained.
+
+\begin{lstlisting}[language=python]
+import scipy.optimize as optimize
+
+result = optimize.lsq_linear(X, Y)
+print(result.x)
+# [0.84398022 1.97617252 3.13064746]
+\end{lstlisting}
+    \end{frame}
+    \section{Introduction to Pandas}
+    \begin{frame}[fragile]
+        \frametitle{Introduction to Pandas}
+
+        Suppose we no longer want to perform the linear regression on the generated data. Instead, we want apply the model on some real-world data. Here, we need to first load and transform the data to a format that can be used in the model.
+
+        {\color{blue}\footnotesize\verb|pandas|} is a powerful data manipulation library that provides data structures and functions to work with structured data.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Introduction to Pandas}
+
+        {\color{blue}\footnotesize\verb|pandas|} provides functions to load data from various sources, including CSV, Excel, etc.
+
+        Use {\color{darkred}\footnotesize\verb|pip install pandas|} to install {\color{blue}\footnotesize\verb|pandas|}. Conventionally, we use {\color{blue}\footnotesize\verb|import pandas as pd|} to import the library.
+
+    \end{frame}
+    \subsection{Loading Data}
+    \begin{frame}[fragile]
+        \frametitle{Loading Data}
+
+        Suppose we have a CSV file {\footnotesize\verb|data.csv|} that contains the data we want to use. We can use {\color{blue}\footnotesize\verb|pd.read_csv|} to load the data.
+
+\begin{lstlisting}[language=python]
+import pandas as pd
+data = pd.read_csv('data.csv', index_col=0)
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Table as DataFrames}
+
+        Usually, the data are loaded to a {\color{blue}\footnotesize\verb|pandas.DataFrame|} object. We can use {\color{blue}\footnotesize\verb|head|} method to display the first few rows.
+
+\begin{lstlisting}[language=python]
+print(data.head())
+#     X0        X1        X2         Y
+# 0  1.0  0.548814  0.715189  4.936968
+# 1  1.0  0.602763  0.544883  3.680603
+# 2  1.0  0.423655  0.645894  3.651290
+# 3  1.0  0.437587  0.891773  5.628237
+# 4  1.0  0.963663  0.383442  2.950824
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Indexing Results are Series}
+
+        In pandas, {\color{blue}\footnotesize\verb|Series|} refers to a 1-dimensional array. Each column in a {\color{blue}\footnotesize\verb|DataFrame|} is a {\color{blue}\footnotesize\verb|Series|}. We can use Python index syntax to extract a column.
+
+\begin{lstlisting}[language=python]
+>>> print(data['Y'])
+0      4.936968
+1      3.680603
+         ...   
+198    1.148224
+199    0.020586
+Name: Y, Length: 200, dtype: float64
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Slicing Results are DataFrames}
+
+        If we provide a list of column names rather than a single column name, the result will be a {\color{blue}\footnotesize\verb|DataFrame|}.
+
+\begin{lstlisting}[language=python]
+>>> print(data[['X1', 'X2']])
+           X1        X2
+0    0.548814  0.715189
+1    0.602763  0.544883
+..        ...       ...
+198  0.355369  0.356707
+199  0.016329  0.185232
+
+[200 rows x 2 columns]
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Underlying NumPy Array}
+
+        We can use {\color{blue}\footnotesize\verb|values|} property or {\color{blue}\footnotesize\verb|to_numpy|} method to extract the underlying NumPy array of a DataFrame or Series.
+
+\begin{lstlisting}[language=python]
+X = data[['X0', 'X1', 'X2']].values
+Y = data['Y'].to_numpy()
+print(Y)
+# [ 4.93696826  3.68060286  3.65129038  5.62823723  2.95082427  3.43945708
+# 4.52799923  1.4978116   3.49612488  4.87946275  5.29308598  4.15724098
+# 2.43670753  3.30772034  3.56219882  2.96089721  2.46024725  2.57819384
+# 3.91732642  7.18968055  2.32541139  3.51919953  5.09263537  0.61859906
+# ...
+\end{lstlisting}
+
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example: Apply Linear Regression on Real Data}
+
+        Now we have loaded the data, we can apply the linear regression model on the data.
+
+\begin{lstlisting}[language=python]
+X = data[['X0', 'X1', 'X2']].values
+Y = data['Y'].to_numpy()
+beta_hat = np.linalg.inv(X.T @ X) @ X.T @ Y
+print(beta_hat)
+# [0.84398022 1.97617252 3.13064746]
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}
+        \mythanks
+    \end{frame}
+\end{document}
