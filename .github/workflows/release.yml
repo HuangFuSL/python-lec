@@ -5,6 +5,38 @@ on:
     types: [published]
 
 jobs:
+  compile-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute Python script
+        run: |
+          find . -name "*.py" -exec python {} \;
+
+      - name: Compress pgf files
+        run: |
+          find . -name "*.pgf" -exec tar -czvf pgf_files.tar.gz {} +
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: pgf_files
+          path: pgf_files.tar.gz
+
   build:
     runs-on: ubuntu-latest
     container:
@@ -12,10 +44,19 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout main
+      - name: Checkout tag
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: pgf_files
+
+      - name: Extract pgf files
+        run: |
+          tar -xzvf pgf_files/pgf_files.tar.gz
 
       - name: Compile PDF and compress
         run: |
