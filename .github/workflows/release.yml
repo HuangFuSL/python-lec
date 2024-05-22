@@ -43,6 +43,7 @@ jobs:
       image: ghcr.io/huangfusl/template:v2.7.0
     permissions:
       contents: write
+    needs: compile-images
     steps:
       - name: Checkout tag
         uses: actions/checkout@v2
