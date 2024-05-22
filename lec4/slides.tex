@@ -1,0 +1,684 @@
+\documentclass[beamer, en, version=2.0]{huangfusl-template}
+\usepackage[scheme=plain]{ctex}
+\usepackage{listings}
+\usepackage{libertine}
+\usefonttheme[onlymath]{serif}
+% Change tt font to Source Code Pro
+\usepackage{sourcecodepro}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{darkblue!10},
+    % Set color paddings
+    frame=single,
+    framerule=0pt,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    % Set comment to gray and italic
+    commentstyle=\color{gray}\itshape,
+    % Set keyword to bold and darkblue
+    keywordstyle=\color{darkblue}\bfseries,
+    % Set string to darkred
+    stringstyle=\color{darkred},
+}
+
+\title[Lecture 4: Data visualization]{\LARGE{清华经管博士生工作坊}\newline\newline \large{Lecture 4: Data visualization}}
+\author{皇甫硕龙}
+\date{2024-04-25}
+\splitsections
+
+\begin{document}
+    \begin{frame}
+        \maketitle
+    \end{frame}
+
+    \section{Use Pandas for Data Pre-processing}
+
+    \begin{frame}
+        \frametitle{Use Pandas for Data Pre-processing}
+
+        The procedures in data pre-processing include:
+
+        \begin{enumerate}
+            \item Data I/O, which has been covered in the previous lecture.
+            \item Selection: extract certain rows or columns from the dataset.
+            \item Transformation \& Aggregation: apply functions on the dataset.
+            \item Merge: combine multiple tables into one.
+        \end{enumerate}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Starting DataFrames}
+
+        For the following slides, we will use the following DataFrame as an example:
+
+\begin{lstlisting}[language=python]
+import pandas as pd
+import numpy as np
+np.random.seed(0)
+
+dates = pd.date_range("20130101", periods=6)
+df = pd.DataFrame(np.random.randn(6, 4), index=dates, columns=list("ABCD"))
+
+#                    A         B         C         D
+# 2013-01-01  1.764052  0.400157  0.978738  2.240893
+# 2013-01-02  1.867558 -0.977278  0.950088 -0.151357
+# ... 4 more rows ...
+\end{lstlisting}
+
+    \end{frame}
+
+    \subsection{Selection}
+
+    \begin{frame}[fragile]
+        \frametitle{Selection: Using GetItem ({\normalsize\texttt{[]}})}
+
+        \begin{itemize}
+            \item Providing a column name yields the column as a Series.
+            \item Providing a list of column names yields the columns as a DataFrame.
+            \item Providing a slice of row indexes yields the rows as a DataFrame.
+        \end{itemize}
+
+\begin{lstlisting}[language=python]
+df['A'] # Get column A, [1.764052, 1.867558, ...]
+df[['A', 'B']] # Get columns A and B, [[1.764052, 0.400157], ...]
+df[0:3]
+# Get the first 3 rows, [[1.764052, 0.400157, 0.978738, 2.240893], ...]
+\end{lstlisting}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Selection: Using Label-based Indexing}
+
+        \begin{itemize}
+            \item Use {\color{blue}\footnotesize\verb|loc|} to select data by [row, column] labels.
+            \item Use {\color{blue}\footnotesize\verb|iloc|} to select data by [row, column] numerical index (like acting on a NumPy array).
+        \end{itemize}
+
+\begin{lstlisting}[language=python]
+df.loc[:, ['A', 'B']] # Get columns A and B
+df.loc['20130102':'20130104', ['A', 'B']] # Get rows 2-4 and columns A and B
+df.iloc[3] # Get the 4th row
+df.iloc[3:5, 0:2] # Get rows 4-5 and columns 1-2
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Selection: Boolean Indexing}
+
+        We can use boolean indexing to select data based on certain criteria. The provided boolean array can be a Series or a DataFrame.
+
+        \begin{itemize}
+            \item \textbf{Series}: Select rows where the value is {\footnotesize\verb|True|}.
+            \item \textbf{DataFrame}: Elements with {\footnotesize\verb|False|} values will be replaced by {\footnotesize\verb|NaN|}.
+        \end{itemize}
+
+\begin{lstlisting}[language=python]
+df[df['A'] > 0] # Select rows where A > 0
+#                    A         B         C         D
+# 2013-01-01  1.764052  0.400157  0.978738  2.240893
+# 2013-01-02  1.867558 -0.977278  0.950088 -0.151357
+# 2013-01-04  0.761038  0.121675  0.443863  0.333674
+# 2013-01-05  1.494079 -0.205158  0.313068 -0.854096
+df[df > 0] # Replace elements with A <= 0 by NaN
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Selection: Setting}
+
+        Selections can also be used to set values in the DataFrame. Only the selected elements will be modified.
+
+\begin{lstlisting}[language=python]
+df2 = df.copy()
+df2[df2 > 0] = -df2 # Replace elements with A > 0 by -A
+#                    A         B         C         D
+# 2013-01-01 -1.764052 -0.400157 -0.978738 -2.240893
+# 2013-01-02 -1.867558 -0.977278 -0.950088 -0.151357
+# ... 4 more rows ...
+\end{lstlisting}
+
+        Similar to {\color{blue}\footnotesize\verb|loc|} and {\color{blue}\footnotesize\verb|iloc|}, we can use {\color{blue}\footnotesize\verb|at|} and {\color{blue}\footnotesize\verb|iat|} to set values at specific locations.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Selection Special: Handling Missing Data}
+
+        Missing data are {\footnotesize\verb|NaN|}s in Pandas.
+
+        \begin{itemize}
+            \item Use {\color{blue}\footnotesize\verb|dropna()|} to drop rows with missing data.
+            \item Use {\color{blue}\footnotesize\verb|fillna()|} to fill missing data with a certain value.
+            \item We can use {\color{blue}\footnotesize\verb|isna()|} and {\color{blue}\footnotesize\verb|notna()|} to check whether the data is missing. The return value is a boolean DataFrame.
+        \end{itemize}
+    \end{frame}
+    \subsection{Transformation \& Aggregation}
+    \begin{frame}[fragile]
+        \frametitle{Aggregation: Stats}
+
+        Pandas provides a variety of functions to calculate statistics on the DataFrame. Without specifying the {\color{blue}\footnotesize\verb|axis|} parameter, the function will be applied to the entire DataFrame, otherwise it will be applied to the specified axis. The functions will \textbf{ignore} missing data by default.
+
+        \begin{itemize}
+            \item These functions have been covered in the previous lecture.
+            \item {\color{blue}\footnotesize\verb|value_counts|}: Count the number of unique values.
+        \end{itemize}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Aggregation: Custom Combinations}
+
+        We can use {\color{blue}\footnotesize\verb|agg()|} to perform custom aggregation functions on the DataFrame.
+
+\begin{lstlisting}[language=python]
+df.agg(['sum', 'mean']) # Calculate the sum and mean of each column
+#              A         B         C         D
+# sum   3.230518  0.403613  3.694237  2.281223
+# mean  0.538420  0.067269  0.615706  0.380204
+df.agg({'A': 'mean', 'B': 'sum'}) # Calculate the mean of A and sum of B
+# A   0.538420
+# B   0.403613
+# dtype: float64
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Aggregation: Custom Functions}
+
+        {\color{blue}\footnotesize\verb|agg()|} also accepts custom functions as it's argument. The function should take a Series as input and return a scalar. Use {\color{blue}\footnotesize\verb|axis|} parameter to specify the aggregated axis.
+
+\begin{lstlisting}[language=python]
+def double_mean(x):
+    return 2 * x.mean()
+df.agg(double_mean) # Axis defaults to 0
+# A    1.076839
+# B    0.134538
+# C    1.231412
+# D    0.760408
+# dtype: float64
+\end{lstlisting}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Transformation: Custom Functions}
+
+        We can use {\color{blue}\footnotesize\verb|transform()|} to apply custom functions to the DataFrame. Transformation are performed column-wise or row-wise, depending on the {\color{blue}\footnotesize\verb|axis|} parameter. Thus, the function provided should accept a Series as input and return a Series of the same length.
+
+\begin{lstlisting}[language=python]
+df.transform(lambda x: x - x.mean()) # Subtract the mean of each column
+#                    A         B         C         D
+# 2013-01-01  1.225633  0.332888  0.363032  1.860689
+# 2013-01-02  1.329138 -1.044547  0.334382 -0.531561
+# ... 4 more rows ...
+\end{lstlisting}
+    \end{frame}
+    \subsection{Merge}
+    \begin{frame}[fragile]
+        \frametitle{Merge: Concatenation}
+
+        Concatenation operation {\color{blue}\footnotesize\verb|concat()|} is similar to the corresponding operation in NumPy. We can concatenate multiple DataFrames along the column or row.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Merge: Join}
+
+        Join operation {\color{blue}\footnotesize\verb|left.join(right)|} on a column {\color{red}\footnotesize\verb|a|} is equivalent to the following actions.
+
+        \begin{enumerate}
+            \item The column {\color{red}\footnotesize\verb|a|} of the left and the index of right should have intersection.
+            \item For each row in the left DataFrame, find the corresponding row in the right DataFrame by the value of column {\color{red}\footnotesize\verb|a|}.
+            \item Merge the two rows into one.
+            \item Perform the above steps for all rows in the left DataFrame.
+        \end{enumerate}
+    \end{frame}
+    \section{Introduction to Data Visualization}
+    \begin{frame}[fragile]
+        \frametitle{Introduction to Matplotlib}
+
+        Matplotlib is a plotting library for Python.
+
+        \begin{itemize}
+            \item Install matplotlib by running {\color{darkred}\footnotesize\verb|pip install matplotlib|}.
+            \item Conventionally, we use {\color{blue}\footnotesize\verb|import matplotlib.pyplot as plt|} or {\color{blue}\footnotesize\verb|from matplotlib import pyplot as plt|} to import the library.
+        \end{itemize}
+    \end{frame}
+    \subsection{Basic Plotting}
+    \begin{frame}[fragile]
+        \frametitle{Plot: Line Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+plt.plot([1, 2, 3, 4], [1, 4, 2, 3])
+plt.plot([1, 2, 3, 4], [2, 3, 4, 5], color='red', legend='Line 2')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Simple line plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/1-line-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Plot: Scatter Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x, y = np.random.rand(2, 100)
+plt.scatter(x, y, s=3, color='blue', alpha=0.5)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Simple scatter plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/2-scatter-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Hist: Histogram}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+data = np.random.randn(1000)
+plt.hist(data, bins=30, color='green', alpha=0.5)
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.title('Simple histogram')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/3-histogram.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Bar: Bar Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = ['A', 'B', 'C', 'D']
+y = [1, 2, 3, 4]
+plt.bar(x, y, color='orange', alpha=0.5)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Simple bar plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/4-bar-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Saving Plots}
+
+        We can save the plots using the {\color{blue}\footnotesize\verb|savefig()|} function. Matplotlib supports a variety of formats, including PNG, PDF, and SVG.
+    \end{frame}
+    \subsection{Fine-tuning plots}
+    \begin{frame}[fragile]
+        \frametitle{Error Bar}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = ['A', 'B', 'C', 'D']
+y = [1, 2, 3, 4]
+plt.bar(x, y, color='orange', alpha=0.5)
+plt.errorbar(x, y, yerr=0.1, fmt='o', color='red')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Simple bar plot with error bars')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/5-bar-plot-error.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Markers}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x), marker='x', color='blue', alpha=0.5, markersize=5, markevery=10)
+plt.plot(x, np.cos(x), marker='o', color='red', alpha=0.5, markersize=5, markevery=10)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Markers')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/6-line-plot-marker.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Legend}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x), marker='x', color='blue', alpha=0.5, markersize=5, markevery=10, label='$\\sin(x)$')
+plt.plot(x, np.cos(x), marker='o', color='red', alpha=0.5, markersize=5, markevery=10, label='$\\cos(x)$')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Legends')
+plt.legend(loc='upper right')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/7-legend.pgf}
+        \end{column}
+        \end{columns}
+
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Axis Ticks and Labels}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x), marker='x', color='blue', alpha=0.5, markersize=5, markevery=10)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Axis Ticks and Labels')
+plt.xticks(np.arange(0, 11, 2))
+plt.yticks(np.arange(-1, 1.1, 0.2))
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/8-axis-ticks.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Minor Ticks}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x), marker='x', color='blue', alpha=0.5, markersize=5, markevery=10)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Minor Ticks')
+plt.minorticks_on()
+plt.xticks(np.arange(0, 11, 1), minor=True)
+plt.xticks(np.arange(0, 11, 2), minor=False)
+plt.yticks(np.arange(-1, 1.1, 0.1), minor=True)
+plt.yticks(np.arange(-1, 1.1, 0.5), minor=False)
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/9-minor-ticks.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Gridlines}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+plt.plot(x, np.sin(x), marker='x', color='blue', alpha=0.5, markersize=5, markevery=10)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Gridlines')
+plt.grid(True)
+# Parameter `which` can be 'major', 'minor', or 'both'
+# Parameter `axis` can be 'x', 'y', or 'both'
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/10-gridlines.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Error Range}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+y = 2 * x
+y_pos_err = 3 + 0.5 * np.random.rand(100)
+y_neg_err = 2 - 0.2 * np.random.rand(100)
+plt.plot(x, y, color='black', alpha=0.5)
+plt.fill_between(x, y + y_pos_err, y, color='red', alpha=0.5)
+plt.fill_between(x, y, y - y_neg_err, color='green', alpha=0.5)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Error Range')
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/11-error-range.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Color Maps}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+colors = np.linspace(0, 1, 100)
+plt.scatter(x, y, c=colors, cmap='viridis')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Color Maps')
+plt.colorbar()
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{12-color-maps.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Image Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+heatmap = np.random.rand(10, 10)
+plt.imshow(heatmap, cmap='viridis')
+plt.colorbar()
+plt.title('Image Plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{13-image-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Contour Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(-2, 2, 100)
+y = np.linspace(-2, 2, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.exp(-X**2 - Y**2)
+CS = plt.contour(X, Y, Z, cmap='viridis')
+plt.clabel(CS)
+plt.title('Contour Plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{14-contour-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Filled Contour Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(-2, 2, 100)
+y = np.linspace(-2, 2, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.exp(-X**2 - Y**2)
+plt.contourf(X, Y, Z, cmap='viridis')
+plt.colorbar()
+plt.title('Filled Contour Plot')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{15-contourf-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \subsection{Subplot Layout}
+    \begin{frame}[fragile]
+        \frametitle{Subplots}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+y1, y2 = np.sin(x), np.cos(x)
+fig, (a, b) = plt.subplots(2, 1, figsize=(2.8, 2.5), layout='constrained', sharex=True)
+a.plot(x, y1, color='blue', alpha=0.5)
+a.set_ylabel('y')
+a.set_title('sin(x)')
+b.plot(x, y2, color='red', alpha=0.5)
+b.set_xlabel('x')
+b.set_ylabel('y')
+b.set_title('cos(x)')
+fig.suptitle('Subplots')
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{16-subplots.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Mosaic Subplot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+x = np.linspace(0, 10, 100)
+y1, y2 = np.sin(x), np.cos(x)
+y3 = y1 / y2
+fig, axes = plt.subplot_mosaic([['a', 'b'], ['c', 'c']], figsize=(2.8, 2.5))
+axes['a'].plot(x, y1, color='blue', alpha=0.5)
+axes['b'].plot(x, y2, color='red', alpha=0.5)
+axes['c'].plot(x, y3, color='green', alpha=0.5)
+fig.suptitle('Mosaic Subplot')
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \import{imgs}{17-mosaic-subplot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \subsection{Examples}
+    \begin{frame}[fragile]
+        \frametitle{Example 1: Regression Result}
+
+        Consider a linear regression model $y = 2x + 1 + \epsilon$, where $\epsilon \sim \mathcal{N}(0, 1)$. First we generate the data and fit the model.
+
+\begin{lstlisting}[language=python]
+import numpy as np
+np.random.seed(0)
+x = np.stack([np.ones(25), np.random.randn(25)])
+beta_true = np.array([1, 2])
+y = beta_true @ x + np.random.randn(25)
+beta_hat = np.linalg.inv(x @ x.T) @ x @ y
+# [1.07515309, 2.11469843]
+\end{lstlisting}
+
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example 1: Regression Result}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+plt.scatter(x[1], y, color='blue', alpha=0.5, s=7)
+plt.plot(x[1], beta_hat @ x, color='red', alpha=0.7)
+for i in range(25):
+    plt.plot([x[1, i], x[1, i]], [y[i], beta_hat @ x[:, i]], color='gray', alpha=0.5)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title('Regression Result')
+plt.show()
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/e-1-regression-result.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example 2: Plot Error}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+plt.plot(x[1], beta_hat @ x, color='red', alpha=0.7)
+x2 = x.copy()
+x2.sort(axis=1)
+y_err = x2[1].std() * np.sqrt(1 / x2.shape[1] + (x2[1] - x2[1].mean()) ** 2 / np.sum((x2[1] - x2[1].mean()) ** 2))
+plt.fill_between(x2[1], (beta_hat @ x2) - y_err, (beta_hat @ x2) + y_err, color='red', alpha=0.3, interpolate=True)
+plt.scatter(x[1], y, color='blue', alpha=0.5, s=7)
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/e-2-regression-error.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Example 3: QQ Plot}
+
+        \begin{columns}
+        \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+from scipy.stats import norm
+residuals = y - beta_hat @ x
+norm_res = (residuals - residuals.mean()) / residuals.std()
+norm_q = norm.ppf(np.linspace(0, 1, 25))
+plt.scatter(norm_q, np.sort(norm_res), color='blue', alpha=0.5)
+plt.plot(norm_q, norm_q, color='red', alpha=0.7)
+plt.xlabel('Theoretical quantiles')
+plt.ylabel('Sample quantiles')
+plt.title('QQ Plot')
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \input{imgs/e-3-qq-plot.pgf}
+        \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}
+        \mythanks
+    \end{frame}
+\end{document}
