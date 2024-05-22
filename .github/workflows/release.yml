@@ -5,15 +5,19 @@ on:
     types: [published]
 
 jobs:
-  compile-images:
+  build:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/huangfusl/template:v2.7.0
+    permissions:
+      contents: write
     steps:
       - name: Checkout tag
         uses: actions/checkout@v2
         with:
           ref: ${{ github.ref }}
 
-      - name: Set up Python
+      - name: Set up Python 3
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
@@ -23,41 +27,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute Python script
+      - name: Compile pgf images
         run: |
-          find . -name "*.py" -exec python {} \;
-
-      - name: Compress pgf files
-        run: |
-          find . -name "*.pgf" -exec tar -czvf pgf_files.tar.gz {} +
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: pgf_files
-          path: pgf_files.tar.gz
-
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/huangfusl/template:v2.7.0
-    permissions:
-      contents: write
-    needs: compile-images
-    steps:
-      - name: Checkout tag
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.ref }}
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: pgf_files
-
-      - name: Extract pgf files
-        run: |
-          tar -xzvf pgf_files/pgf_files.tar.gz
+          find . -name "*.py" -exec python3 {} \;
 
       - name: Compile PDF and compress
         run: |
