@@ -1,0 +1,596 @@
+\documentclass[beamer, en, version=2.0]{huangfusl-template}
+\usepackage[scheme=plain]{ctex}
+\usepackage{listings}
+\usepackage{libertine}
+\usefonttheme[onlymath]{serif}
+% Change tt font to Source Code Pro
+\usepackage{sourcecodepro}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{darkblue!10},
+    % Set color paddings
+    frame=single,
+    framerule=0pt,
+    breakatwhitespace=true,
+    showstringspaces=false,
+    % Set comment to gray and italic
+    commentstyle=\color{gray}\itshape,
+    % Set keyword to bold and darkblue
+    keywordstyle=\color{darkblue}\bfseries,
+    % Set string to darkred
+    stringstyle=\color{darkred},
+}
+
+\title[Lecture 5: Introduction to Machine Learning and Text Analysis]{\LARGE{清华经管博士生工作坊}\newline\newline \large{Lecture 5: Introduction to Machine Learning and Text Analysis}}
+\author{皇甫硕龙}
+\splitsections
+
+\begin{document}
+    \begin{frame}
+        \maketitle
+    \end{frame}
+
+    \section{Machine Learning Basics}
+
+    \subsection{Concepts}
+
+    \begin{frame}
+        \frametitle{Concepts in Machine Learning}
+
+        In machine learning, we want to learn a function $f$ that maps input $\bsx$ to output $\bsy$, i.e. $\bsy = f(\bsx)$. Usually $\bsx\in \bbR^n$ is a vector of features, and $\bsy$ can be a discrete class label or a continuous value.
+
+        \begin{itemize}
+            \item \textbf{Data}: A set of labeled input-output pairs $\{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$, or just input data $\{x_1, x_2, \ldots, x_n\}$.
+            \item \textbf{Feature}: Input data $x$ is usually represented as a vector of features $\bsx = (x_1, x_2, \ldots, x_m)$.
+            \item \textbf{Model}: The learned function $f$ is called a model, which is usually parameterized by $\theta$. \textbf{Learning} is the process to find the optimal parameter $\theta$.
+            \item \textbf{Loss}: A scalar function that measures the optimality of the model. The higher the loss, the worse the model.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Learning Methods}
+
+        \begin{itemize}
+            \item \textbf{Supervised Learning}: Each piece of input data $x$ corresponds to a ground-truth output $y$. The goal is to learn a function $f$ that maps $x$ to $y$.
+            \item \textbf{Unsupervised Learning}: There is no ground-truth output $y$. The goal is to learn the underlying structure of the input data.
+            \item \textbf{Semi-supervised Learning}: A mixture of supervised and unsupervised learning. Only a small portion of the input data is labeled.
+            \item \textbf{Reinforcement Learning}: The loss function is not explicitly defined but comes from the environment. The goal is to learn the optimal parameter during the interaction with the environment.
+        \end{itemize}
+    \end{frame}
+
+    \subsection{Tasks}
+
+    \begin{frame}
+        \frametitle{Common Machine Learning Tasks}
+
+        \begin{itemize}
+            \item \textbf{Classification}: The output $y$ is a discrete class label.
+            \item \textbf{Regression}: The output $y$ is a continuous value.
+            \item \textbf{Clustering}: Group input data into different clusters.
+            \item \textbf{Dimensionality Reduction}: Map a high-dimensional input data to a low-dimensional space.
+            \item \textbf{Model Selection}: Robustly estimate model performance and select the best model from a set of candidate models.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Algorithms}
+
+        \begin{itemize}
+            \item Classification and Regression: Linear Model, Decision Tree, Random Forest, Gradient Boosting, Neural Network, etc.
+            \item Clustering: K-means, DBSCAN, Hierarchical Clustering, etc.
+            \item Dimensionality Reduction: PCA, t-SNE, UMAP, etc.
+            \item Model Selection: Cross Validation, Grid Search, Bayesian Optimization, etc.
+        \end{itemize}
+    \end{frame}
+
+    \subsection{Metrics and Losses}
+
+    \begin{frame}
+        \frametitle{Binary Classification Metrics}
+
+        In binary classification tasks, given ground truth label $y$ and predicted label $\hat y$. We define \textbf{positive} if $\hat y = 1$ and \textbf{negative} otherwise. If $y = \hat y$, we call the result \textbf{true}, otherwise \textbf{false}.
+
+        \begin{itemize}
+            \item \textbf{Accuracy}: Accuracy is the ratio of correctly predicted instances to the total instances, i.e. $\frac{TP + TN}{TP + TN + FP + FN}$.
+            \item \textbf{Precision}: Precision is the ratio of correctly predicted positive observations to the total predicted positive observations, i.e. $\frac{TP}{TP + FP}$.
+            \item \textbf{Recall}: Recall is the ratio of correctly predicted positive observations to the all observations in actual class, i.e. $\frac{TP}{TP + FN}$.
+            \item \textbf{F1 Score}: F1 Score is the weighted average of Precision and Recall.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{ROC and AUC}
+
+        ROC curve is a graphical representation of the true positive rate $TP / (TP + FN)$ (y axis) against the false positive rate $FP / (FP + TN)$ (x axis). We can transform the classification function $f_c$ to a probability function $f_p\in [0, 1]$ by applying a threshold $t$. $f_p(x)$ denotes the probability of $x$ belonging to the positive class.
+        \begin{equation}
+            \hat y = \bbI_{\{f_p(x) > t\}}
+        \end{equation}
+        By increasing the threshold from $0$ to $1$, we can get different pairs of true positive rate and false positive rate.
+
+        AUC is the \textbf{A}rea \textbf{U}nder the RO\textbf{C}. A perfect classifier has AUC equal to $1$, while a random classifier has AUC equal to $0.5$.
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Understand ROC and AUC}
+
+        \begin{figure}
+            \import{imgs}{1-auc.pgf}
+        \end{figure}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Multi-class Classification Metrics}
+
+        Multi-class classification can be regarded as a set of binary classification tasks. Thus, for each separate class (or any combination of them), we can evaluate precision, recall, F1 score, AUC, ROC, etc. for each class.
+
+        Accuracy on multi-class classification is defined as the ratio of correctly predicted instances to the total instances.
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Regression Metrics}
+
+        In regression tasks, we have continuous output $y$ and predicted output $\hat y$. We can evaluate the performance of the model by the following metrics:
+
+        \begin{itemize}
+            \item \textbf{Mean Absolute Error (MAE)}: $\frac{1}{n}\sum_{i=1}^n |y_i - \hat y_i|$.
+            \item \textbf{Mean Squared Error (MSE)}: $\frac{1}{n}\sum_{i=1}^n (y_i - \hat y_i)^2$.
+            \item \textbf{Root Mean Squared Error (RMSE)}: $\sqrt{\text{MSE}}$.
+            \item \textbf{R\textsuperscript{2}}.
+        \end{itemize}
+    \end{frame}
+
+    \subsection{Model Selection}
+
+    \begin{frame}
+        \frametitle{Train, Validation, and Test Sets}
+
+        In machine learning, we usually split the data into three sets: \textbf{training}, \textbf{validation} and \textbf{test}.
+
+        \begin{itemize}
+            \item \textbf{Training Set}: For a series of models $f_1, f_2, \ldots, f_n$, we train each model on the training set to find its optimal parameter $\theta_i$.
+            \item \textbf{Validation Set}: Evaluate the performance of trained models on the validation set, and select the best model based on the performance.
+            \item \textbf{Test Set}: Evaluate the performance of the selected model on the test set.
+        \end{itemize}
+
+        Any records in the validation set and test set should never be used for training.
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Cross Validation}
+
+        Cross Validation is a technique to perform model selection under limited data. The basic idea is to split the training set into distinct subsets, and use each subset as the validation set in turn.
+
+        The performance of the model is the average performance on all validation sets. We can use this performance to select the best model.
+    \end{frame}
+
+    \section{Programming}
+
+    \begin{frame}[fragile]
+        \frametitle{The Sci-kit Learn Library}
+
+        Sci-kit Learn is a popular machine learning library in Python. It provides a wide range of machine learning algorithms and tools for model selection.
+
+        We can use {\footnotesize\color{darkred}\verb|import sklearn|} to access the library.
+    \end{frame}
+
+    \subsection{Programming Interface}
+
+    \begin{frame}[fragile]
+        \frametitle{Algorithms}
+
+        Each machine learning algorithm (classification, regression, clustering and dimensionality reduction) has been implemented as a class. They share the same interfaces, making it easy to switch between different algorithms.
+
+        \begin{itemize}
+            \item {\color{blue}\footnotesize\verb|fit(X, y, sample_weight=None)|}: Train the model on the training data $X$ and the ground truth label $y$. For unsupervised learning, $y$ is not needed. Sample weight is used when labels are unbalanced.
+            \item {\color{blue}\footnotesize\verb|predict(X)|}: Predict the label $y$ based on the input data $X$.
+            \item {\color{blue}\footnotesize\verb|score(X, y, sample_weight=None)|}: Evaluate the performance (accuracy) of the model on the input data $X$ and the ground truth label $y$.
+            \item \textit{For unsupervised models}: {\color{blue}\footnotesize\verb|fit_predict(X, y, sample_weight=None)|}: Train the model and predict the output in one step, {\color{blue}\footnotesize\verb|y|} is not used.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Built-in Dataset}
+
+        Sci-kit Learn provides some built-in datasets for practice. We can use {\footnotesize\color{darkred}\verb|sklearn.datasets.load_*|} to load the dataset. Commonly used datasets include:
+
+        \begin{itemize}
+            \item \textbf{Iris}: Classification.
+            \item \textbf{Boston Housing}: Regression.
+            \item \textbf{Digits}: Image classification.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Model Selection}
+
+        Sci-kit Learn provides a set of tools for model selection. These functions are located in {\footnotesize\color{darkred}\verb|sklearn.model_selection|} submodule.
+
+        \begin{itemize}
+            \item {\color{blue}\footnotesize\verb|train_test_split|}: Split the data into training and test sets.
+            \item Cross validation splitter including {\color{blue}\footnotesize\verb|KFold|}, {\color{blue}\footnotesize\verb|LeaveOneOut|} and evaluator {\color{blue}\footnotesize\verb|cross_validate|}, {\color{blue}\footnotesize\verb|cross_val_score|}, etc.
+        \end{itemize}
+    \end{frame}
+
+    \subsection{Example: Classification on Iris Dataset}
+
+    \begin{frame}[fragile]
+        \frametitle{Load the Iris Dataset}
+
+        The iris dataset is a classification dataset that contains 4 features of 3 classes of iris flowers. We can first visualize the dataset.
+
+\begin{lstlisting}[language=python]
+from sklearn.datasets import load_iris
+import pandas as pd
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df['target'] = iris.target
+print(df.head())
+#    sepal length (cm)  sepal width (cm)  ...  petal width (cm)  target
+# 0                5.1               3.5  ...               0.2       0
+# 1                4.9               3.0  ...               0.2       0
+# 2                4.7               3.2  ...               0.2       0
+# ...
+\end{lstlisting}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Visualize the Iris Dataset}
+
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines=true]
+from matplotlib import pyplot as plt
+fig, ax = plt.subplots(4, 4, figsize=(2.5, 2.5), sharex='col', sharey='row')
+for i in range(4):
+    for j in range(4):
+        ax[i, j].scatter(
+            df.iloc[:, j],
+            df.iloc[:, i],
+            c=df['target'],
+            alpha=0.8, s=5
+        )
+plt.show()
+\end{lstlisting}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \begin{figure}
+                    \import{imgs}{2-iris-1.pgf}
+                \end{figure}
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Classification Models}
+
+        We can use different models including Decision Tree, Random Forest, Gradient Boosting, Linear Model, etc. to perform classification on the Iris dataset. Here we use cross validation to evaluate the performance of models.
+
+\begin{lstlisting}[language=python]
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+
+models = {
+    'dt': DecisionTreeClassifier(),
+    'rf': RandomForestClassifier(),
+    'gb': GradientBoostingClassifier(),
+    'lr': LogisticRegression(max_iter=500)
+}
+\end{lstlisting}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Fit and Evaluate Models}
+
+        Here we use 10-fold cross validation to evaluate the performance of each model.
+\begin{lstlisting}[language=python]
+from sklearn.model_selection import cross_val_score
+for name, model in models.items():
+    scores = cross_val_score(model, iris.data, iris.target, cv=10)
+    print(f'{name}: {scores.mean():.3f}')
+# dt: 0.953
+# rf: 0.960
+# gb: 0.960
+# lr: 0.973
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{PCA Decomposition}
+
+        We can use PCA to reduce the dimensionality of the input data. Here we reduce the dimensionality to 2 and visualize the data.
+
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+from sklearn.decomposition import PCA
+pca = PCA(n_components=2)
+X = pca.fit_transform(iris.data)
+plt.scatter(X[:, 0], X[:, 1], c=iris.target, alpha=0.8, s=5)
+plt.show()
+\end{lstlisting}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \begin{figure}
+                    \import{imgs}{2-iris-2.pgf}
+                \end{figure}
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Visualize the Decision Boundary}
+
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+lr = LogisticRegression()
+lr.fit(X, iris.target)
+grid = np.meshgrid(
+    np.linspace(X[:, 0].min(), X[:, 0].max(), 100),
+    np.linspace(X[:, 1].min(), X[:, 1].max(), 100)
+)
+grid_y = lr.predict(
+    np.c_[grid[0].ravel(), grid[1].ravel()]
+).reshape(grid[0].shape)
+plt.contourf(grid[0], grid[1], grid_y, alpha=0.3)
+plt.scatter(X[:, 0], X[:, 1], c=iris.target, alpha=0.8, s=5)
+\end{lstlisting}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \begin{figure}
+                    \import{imgs}{2-iris-3.pgf}
+                \end{figure}
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \section{Introduction to Text Analysis}
+
+    \begin{frame}
+        \frametitle{Text Analysis Overview}
+
+        Conventional machine learning algorithms directly operate on numerical data. However, text data is usually in the form of words or characters which is not structured. First we need to convert text data to numerical before applying machine learning algorithms.
+    \end{frame}
+
+    \subsection{Key Concepts}
+
+    \begin{frame}
+        \frametitle{Key Concepts in Text Analysis}
+
+        \begin{itemize}
+            \item \textbf{Document}: A piece of text data.
+            \item \textbf{Corpus}: A collection of document.
+            \item \textbf{Token}: The smallest unit of text, usually a word or a character.
+            \item \textbf{Vocabulary}: The set of all unique tokens in the corpus.
+            \item \textbf{Embedding}: A vector representation of a token or a document.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Text Analysis Pipeline}
+
+        The text analysis pipeline usually consists of the following steps:
+
+        \begin{enumerate}
+            \item \textbf{Tokenization}: Split the document into tokens.
+            \item \textbf{Normalization}: Convert all tokens to lowercase, remove punctuation, remove common words that do not carry much information. etc. This step is optional.
+            \item \textbf{Vectorization}: Convert tokens to vectors. Common methods include Bag of Words, TF-IDF, Word2Vec, etc. Or we can use pre-trained embeddings.
+            \item \textbf{Modeling}: Apply machine learning algorithms to the vectorized data.
+        \end{enumerate}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Tools and Algorithms}
+
+        \begin{enumerate}
+            \item \textbf{Tokenization}: For English, we can simply split by space, or use {\footnotesize\color{darkred}\verb|nltk|}. For Chinese, we can simply split by character, or use {\footnotesize\color{darkred}\verb|jieba|}.
+            \item \textbf{Normalization}: {\footnotesize\color{darkred}\verb|nltk|} and {\footnotesize\color{darkred}\verb|jieba|} contains stop words list and functions for normalization.
+            \item \textbf{Vectorization}: {\footnotesize\color{darkred}\verb|sklearn|} provides BoW and TF-IDF vectorization. {\footnotesize\color{darkred}\verb|gensim|} provides Word2Vec and Doc2Vec. {\footnotesize\color{darkred}\verb|transformers|} provides transformer-based pre-trained embeddings.
+        \end{enumerate}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Text Similarity}
+
+        Since embeddings are vectors, we can calculate the similarity between two documents by calculating the cosine similarity between their embeddings. Cosine similarity is defined as:
+
+        \begin{equation}
+            r(\bsa, \bsb) = \frac{\bsa\cdot\bsb}{\|\bsa\|\|\bsb\|}
+        \end{equation}
+
+        A higher cosine similarity indicates that two documents are (semantically) more similar.
+    \end{frame}
+
+    \subsection{Example: Sentiment Analysis on Amazon Reviews Dataset}
+
+    \begin{frame}[fragile]
+        \frametitle{Download the Dataset}
+
+        First we need to download the Amazon reviews dataset. We can use {\footnotesize\color{darkred}\verb|pandas|} to load the dataset.
+
+\begin{lstlisting}[language=python, breaklines]
+import pandas as pd
+URL = 'https://datarepo.eng.ucsd.edu/mcauley_group/data/amazon_2023/' \
+'raw/review_categories/All_Beauty.jsonl.gz'
+df = pd.read_json(URL, lines=True, compression='gzip', nrows=5000)
+print(df.columns)
+# Index(['rating', 'title', 'text', 'images', 'asin', 'parent_asin', 'user_id',
+# 'timestamp', 'helpful_vote', 'verified_purchase'],
+# dtype='object')
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Preview the Dataset}
+
+        Here we only use ``rating'' and ``text'' columns.
+
+\begin{lstlisting}[language=python]
+print(df[['rating', 'text']].head())
+#    rating                                               text
+# 0       5  This spray is really nice. It smells really go...
+# 1       4  This product does what I need it to do, I just...
+# 2       5                          Smells good, feels great!
+# 3       1                                     Felt synthetic
+# 4       5                                            Love it
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Preprocess Labels}
+
+        We treat ratings with $1$ to $3$ as negative, and ratings with $4$ to $5$ as positive. And we split the dataset into training and test sets. Our task is to predict whether the review is positive or negative based on the text.
+
+\begin{lstlisting}[language=python, breaklines]
+from sklearn.model_selection import train_test_split
+df['sentiment'] = df['rating'].apply(lambda x: 0 if x <= 3 else 1)
+labels_count = df['sentiment'].value_counts()
+labels_count = labels_count / labels_count.sum()
+print(labels_count) # Labels are imbalanced 7728:2272
+
+# Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    df['text'], df['sentiment'], test_size=0.2
+)
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Remove Stop Words}
+
+        \textbf{Stop words} are common words that do not carry much information. We can remove them from the text data.
+
+\begin{lstlisting}[language=python, breaklines]
+stoplist = set('for a of the and to in'.split())
+def remove_words(text, to_remove):
+    return ' '.join(
+        [word for word in text.lower().split() if word not in to_remove]
+    )
+fn_stop = lambda x: remove_words(x, stoplist)
+t_train, t_test = X_train.apply(fn_stop), X_test.apply(fn_stop)
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Remove Low Frequency Words}
+
+        Words that appear only a few times in the corpus usually does not affect the sentiment of the review.
+
+\begin{lstlisting}[language=python, breaklines]
+frequnecy = t_train.str.split().explode().value_counts()
+frequnecy = frequnecy[frequnecy <= 10]
+fn_low = lambda x: remove_words(x, set(frequnecy.index))
+t_train, t_test = t_train.apply(fn_low), t_test.apply(fn_low)
+\end{lstlisting}
+
+        After removing stop words and low frequency words, we can build the bag of words (BoW) corpus. BoW is constructed by counting the frequency of each word in the corpus.
+
+\begin{lstlisting}[language=python, breaklines]
+from gensim import corpora
+dictionary = corpora.Dictionary(t_train.str.split())
+corpus = [dictionary.doc2bow(text) for text in t_train.str.split()]
+\end{lstlisting}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Transform Text Data to Vector Space}
+
+        Currently the text data is in the form of BoW. We can use LSI (Latent Semantic Indexing) to transform the BoW to a lower-dimensional space.
+
+\begin{lstlisting}[language=python, breaklines]
+from gensim import models
+lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=100)
+X_train = pd.DataFrame(
+    [dict(lsi[dictionary.doc2bow(text.split())]) for text in t_train]
+).fillna(0)
+X_test = pd.DataFrame(
+    [dict(lsi[dictionary.doc2bow(text.split())]) for text in t_test]
+).fillna(0)
+\end{lstlisting}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Fit Linear Model}
+
+        We use logistic regression to classify the sentiment of the reviews.
+
+\begin{lstlisting}[language=python, breaklines]
+from sklearn.linear_model import LogisticRegression
+from sklearn.utils.class_weight import compute_sample_weight
+lr = LogisticRegression()
+sample_weight = compute_sample_weight('balanced', y_train)
+lr.fit(X_train, y_train, sample_weight=sample_weight)
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Evaluate Model}
+
+        We evaluate the performance of the model on the test set. Metrics are accuracy, precision, recall, F1 score, ROC and AUC.
+
+\begin{lstlisting}[language=python, breaklines]
+from sklearn.metrics import accuracy_score, roc_curve, roc_auc_score
+from sklearn.metrics import precision_score, recall_score, f1_score
+y_pred = lr.predict(X_test)
+print(accuracy_score(y_test, y_pred)) # ~0.8
+print(precision_score(y_test, y_pred)) # ~0.9
+print(recall_score(y_test, y_pred)) # ~0.67
+print(f1_score(y_test, y_pred)) # ~0.77
+
+fpr, tpr, _ = roc_curve(y_test, lr.predict_proba(X_test)[:, 1])
+auc = roc_auc_score(y_test, lr.predict_proba(X_test)[:, 1])
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Plot ROC}
+
+        \begin{columns}
+            \begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=python, breaklines]
+from matplotlib import pyplot as plt
+plt.plot(fpr, tpr)
+plt.plot([0, 1], [0, 1], '--', color='red')
+plt.text(0.6, 0.4, f'AUC: {auc:.3f}')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.show()
+\end{lstlisting}
+            \end{column}
+            \begin{column}{0.5\textwidth}
+                \begin{figure}
+                    \import{imgs}{3-roc.pgf}
+                \end{figure}
+            \end{column}
+        \end{columns}
+
+    \end{frame}
+
+    \begin{frame}[fragile]
+        \frametitle{Example output}
+
+\begin{lstlisting}[language=python, breaklines]
+text = [
+    'These are pretty and seem well made. I find them comfortable to wear and they are cute.',
+    'this product was terrible, i will never recommend it to anyone',
+]
+text = [remove_words(sentence, stoplist) for sentence in text]
+text = [remove_words(sentence, set(frequnecy.index)) for sentence in text]
+text = pd.DataFrame([
+    dict(lsi[dictionary.doc2bow(sentence.split())])
+    for sentence in text
+])
+print(lr.predict(text)) # [1 0]
+\end{lstlisting}
+    \end{frame}
+
+    \begin{frame}
+        \mythanks
+    \end{frame}
+\end{document}
