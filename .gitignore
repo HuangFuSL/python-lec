@@ -1,4 +1,5 @@
 *.pdf
-*.tar.xz
+*.xz
+*.gz
 *.pgf
 *.png
